@@ -1,10 +1,28 @@
 spring:
-  datasource: { url: ${DB_URL:jdbc:postgresql://localhost:5432/disputes}, username: ${DB_USER:disputes}, password: ${DB_PASSWORD:disputes} }
-  jpa: { hibernate: { ddl-auto: update }, open-in-view: false }
-  session: { cookie: { http-only: true, secure: ${COOKIE_SECURE:false}, same-site: lax } }
+  datasource:
+    url: "${DB_URL:jdbc:postgresql://localhost:5432/disputes}"
+    username: "${DB_USER:disputes}"
+    password: "${DB_PASSWORD:disputes}"
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  session:
+    cookie:
+      http-only: true
+      secure: "${COOKIE_SECURE:false}"
+      same-site: lax
   security:
     oauth2:
       client:
-        registration: { keycloak: { client-id: dispute-portal, client-secret: dispute-portal-secret, authorization-grant-type: authorization_code, scope: openid,profile,email } }
-        provider: { keycloak: { issuer-uri: ${OAUTH_ISSUER:http://localhost:8081/realms/disputes} } }
-server: { forward-headers-strategy: framework }
+        registration:
+          keycloak:
+            client-id: dispute-portal
+            client-secret: dispute-portal-secret
+            authorization-grant-type: authorization_code
+            scope: openid,profile,email
+        provider:
+          keycloak:
+            issuer-uri: "${OAUTH_ISSUER:http://localhost:8081/realms/disputes}"
+server:
+  forward-headers-strategy: framework
