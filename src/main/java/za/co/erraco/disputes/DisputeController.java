@@ -1,0 +1,4 @@
+package za.co.erraco.disputes;
+import jakarta.validation.constraints.NotBlank; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import java.util.*;
+@RestController @RequestMapping("/api") @CrossOrigin(origins="${app.web-origin:http://localhost:4200}",allowCredentials="true") public class DisputeController { private final DisputeService service; DisputeController(DisputeService s){service=s;} record CreateDispute(@NotBlank String reason){}
+ @GetMapping("/health") Map<String,String> health(){return Map.of("status","UP");} @GetMapping("/transactions") List<Transaction> transactions(){return service.transactions();} @GetMapping("/disputes") List<Dispute> disputes(){return service.disputes();} @PostMapping("/transactions/{id}/disputes") ResponseEntity<Dispute> dispute(@PathVariable Long id,@RequestBody @jakarta.validation.Valid CreateDispute r){return ResponseEntity.status(HttpStatus.CREATED).body(service.dispute(id,r.reason()));}}

@@ -1,0 +1,4 @@
+package za.co.erraco.disputes;
+import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.*;
+@Service public class DisputeService { private final TransactionRepository transactions; private final DisputeRepository disputes; DisputeService(TransactionRepository t,DisputeRepository d){transactions=t;disputes=d;}
+ public List<Transaction> transactions(){return transactions.findAll();} @Transactional public Dispute dispute(Long transactionId,String reason){Transaction t=transactions.findById(transactionId).orElseThrow(()->new NoSuchElementException("Transaction not found")); if(!"POSTED".equals(t.status)) throw new IllegalStateException("Only posted transactions can be disputed"); t.status="DISPUTED"; Dispute d=new Dispute();d.transaction=t;d.reason=reason;return disputes.save(d);} public List<Dispute> disputes(){return disputes.findAll();}}

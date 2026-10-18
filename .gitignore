@@ -1,0 +1,4 @@
+target/
+portal-ui/node_modules/
+portal-ui/dist/
+.env
