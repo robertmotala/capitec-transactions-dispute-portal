@@ -1,4 +1,5 @@
 target/
 portal-ui/node_modules/
 portal-ui/dist/
+portal-ui/.angular/
 .env

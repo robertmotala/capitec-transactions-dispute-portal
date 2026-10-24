@@ -1,6 +1,6 @@
-# Transactions Dispute Portal
+# Capitec Transactions Dispute Portal
 
-A production-minded Capitec technical-assessment solution: customers sign in using OAuth 2.0 / OpenID Connect, review transactions and create disputes. The browser never receives an access token; Spring Security holds the authenticated session in an `HttpOnly`, `Secure` (in production), `SameSite=Lax` cookie.
+This compact full-stack demo meets the assessment brief: a customer authenticates, sees transaction history, submits a dispute, and can see its open status. It uses an Angular UI, Spring Boot API, Keycloak OpenID Connect authentication, and PostgreSQL. The API, Keycloak, and database run in Docker.
 
 ```mermaid
 flowchart LR
@@ -13,24 +13,55 @@ flowchart LR
   B -->|Transaction / dispute response| A
 ```
 
-## Run
+## Run locally
 
-1. Start `docker compose up --build`.
-2. In a second terminal, run `cd portal-ui && npm install && npm start`.
-3. Open `http://localhost:4200`, select **Sign in securely**, and use `customer` / `customer`.
+1. Start the Docker-backed services:
 
-## Test and build
+   ```bash
+   docker compose up --build
+   ```
+
+2. In another terminal, start the UI:
+
+   ```bash
+   cd portal-ui
+   npm install
+   npm start
+   ```
+
+3. Open `http://localhost:4200` and sign in with `customer` / `customer`.
+
+The UI automatically calls `GET /api/transactions` after sign-in and displays the seeded transactions. Select **Dispute** on a posted transaction, provide a reason, and submit it. The transaction changes to **Dispute open** and the record is stored in PostgreSQL.
+
+## Services
+
+| Service | Address | Purpose |
+| --- | --- | --- |
+| Angular UI | http://localhost:4200 | Customer transaction and dispute experience |
+| Spring Boot API | http://localhost:8080 | Authenticated transactions and dispute API |
+| Keycloak | http://localhost:8081 | Local OpenID Connect identity provider |
+| PostgreSQL | localhost:5432 | Transaction and dispute persistence |
+
+The API exposes:
+
+- `GET /api/health` — public health check
+- `GET /api/transactions` — authenticated transaction history
+- `GET /api/disputes` — authenticated disputes
+- `POST /api/transactions/{id}/disputes` — authenticated dispute creation
+
+## Tests and builds
 
 ```bash
 mvn test
 mvn package
-cd portal-ui && npm test && npm run build
+cd portal-ui && npm test -- --browsers=ChromeHeadless && npm run build
 ```
 
-## Security decisions
+Current coverage includes six focused Java unit/controller tests and three Angular component/API tests. The final live verification exercised the OAuth login flow, transaction retrieval, dispute creation (`201 Created`), and persisted dispute retrieval from PostgreSQL.
+
+## Demo security notes
 
 - OAuth 2.0 authorization-code flow with OIDC; Keycloak is a local development identity provider.
-- Session cookie has `HttpOnly`, `SameSite=Lax`, and `Secure=true` when deployed behind HTTPS.
-- CSRF defence is enabled; the Angular app must return the `XSRF-TOKEN` cookie in state-changing requests.
-- API is CORS-restricted to the configured web origin and validates dispute reasons.
-- Production deployment should put the API behind TLS, rotate client credentials, use a managed PostgreSQL service, and apply Flyway migrations.
+- Spring Security holds the authenticated browser session; the UI never receives an access token.
+- The demo permits the local Angular origin only and validates non-blank dispute reasons.
+- CSRF is disabled only to keep the local, reverse-proxied demo small. A production deployment must enable CSRF, use HTTPS-only secure cookies, rotate credentials, use managed PostgreSQL, and apply database migrations such as Flyway.

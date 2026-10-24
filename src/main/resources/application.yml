@@ -1,28 +1,24 @@
 spring:
-  datasource:
-    url: "${DB_URL:jdbc:postgresql://localhost:5432/disputes}"
-    username: "${DB_USER:disputes}"
-    password: "${DB_PASSWORD:disputes}"
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-  session:
-    cookie:
-      http-only: true
-      secure: "${COOKIE_SECURE:false}"
-      same-site: lax
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: dispute-portal
-            client-secret: dispute-portal-secret
-            authorization-grant-type: authorization_code
-            scope: openid,profile,email
-        provider:
-          keycloak:
-            issuer-uri: "${OAUTH_ISSUER:http://localhost:8081/realms/disputes}"
-server:
-  forward-headers-strategy: framework
+ datasource:
+  url: "${DB_URL:jdbc:postgresql://localhost:5432/disputes}"
+  username: "${DB_USER:disputes}"
+  password: "${DB_PASSWORD:disputes}"
+ jpa:
+  hibernate:
+   ddl-auto: update
+ security:
+  oauth2:
+   client:
+    registration:
+     keycloak:
+      client-id: dispute-portal
+      client-secret: dispute-portal-secret
+      authorization-grant-type: authorization_code
+      redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+      scope: openid,profile,email
+    provider:
+     keycloak:
+      authorization-uri: "${OAUTH_AUTHORIZATION_URI:http://localhost:8081/realms/disputes/protocol/openid-connect/auth}"
+      token-uri: "${OAUTH_TOKEN_URI:http://localhost:8081/realms/disputes/protocol/openid-connect/token}"
+      jwk-set-uri: "${OAUTH_JWK_SET_URI:http://localhost:8081/realms/disputes/protocol/openid-connect/certs}"
+      user-name-attribute: preferred_username

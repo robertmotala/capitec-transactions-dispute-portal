@@ -1,5 +1,4 @@
-import {bootstrapApplication} from '@angular/platform-browser'; import {Component, inject, signal} from '@angular/core'; import {HttpClient, provideHttpClient, withFetch} from '@angular/common/http'; import {DecimalPipe, NgFor, NgIf} from '@angular/common'; import {FormsModule} from '@angular/forms';
-type Tx={id:number;merchant:string;amount:number;postedOn:string;status:string};
-@Component({standalone:true,imports:[FormsModule,NgFor,NgIf,DecimalPipe],template:`<main><h1>Transactions dispute portal</h1><p>Secure customer transaction review and dispute intake.</p><a class="button" href="/oauth2/authorization/keycloak">Sign in securely</a><section><h2>Transactions</h2><button (click)="load()">Load my transactions</button><p *ngIf="error()">{{error()}}</p><article *ngFor="let t of items()"><b>{{t.merchant}}</b><span>R {{t.amount | number:'1.2-2'}} · {{t.postedOn}}</span><button [disabled]="t.status !== 'POSTED'" (click)="dispute(t)">Dispute</button></article></section></main>`})
-export class App { private http=inject(HttpClient); items=signal<Tx[]>([]);error=signal(''); load(){this.http.get<Tx[]>('/api/transactions',{withCredentials:true}).subscribe({next:x=>this.items.set(x),error:()=>this.error.set('Please sign in to view transactions.')});} dispute(t:Tx){const reason=prompt('Reason for dispute');if(reason)this.http.post(`/api/transactions/${t.id}/disputes`,{reason},{withCredentials:true}).subscribe({next:()=>this.load(),error:()=>this.error.set('Unable to open the dispute.')});}}
+import {bootstrapApplication} from '@angular/platform-browser';
+import {provideHttpClient, withFetch} from '@angular/common/http';
+import {App} from './app';
 bootstrapApplication(App,{providers:[provideHttpClient(withFetch())]});
